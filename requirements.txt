@@ -1,0 +1,11 @@
+google-cloud-bigquery
+db-dtypes
+pandas
+strands-agents[gemini]
+google-genai
+sqlglot
+pyyaml
+pydantic
+rich
+structlog
+pytest

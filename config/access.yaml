@@ -1,0 +1,15 @@
+# Users, roles (viewer | maintainer | admin) and data scope. Stand-in for SSO.
+# scope: "all", or scope_table columns (see data_policy.yaml) -> allowed values.
+
+groups:
+  mg_nike_team:
+    scope: { brand: ["MG", "Nike"] }
+  womens_dept:
+    scope: { department: ["Women"] }
+  leadership:
+    scope: all
+
+users:
+  ana:   { name: Ana,   role: viewer,     group: mg_nike_team }
+  marko: { name: Marko, role: maintainer, group: womens_dept }
+  ceo:   { name: CEO,   role: admin,      group: leadership }

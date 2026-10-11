@@ -1,0 +1,72 @@
+# Allowlist of queryable columns. Anything not listed is blocked.
+# access: allow | pseudonymize (person IDs, shown as "Customer #A7F3")
+#         | quasi_identifier (demographics: shown for groups of customers only, never per customer)
+# Scoped users see rows of scope_table matching their filters, and rows of other tables that belong to those via `belongs_via`.
+# A table without `belongs_via` is off limits to scoped users.
+# describes_customers: aggregates that use its columns, or any quasi_identifier, must cover at least min_group_size
+# customers. Plain sales figures (by brand, category, month) are never hidden, however few customers bought.
+
+dataset: bigquery-public-data.thelook_ecommerce
+scope_table: products
+
+tables:
+  users:
+    description: One row per customer, with demographics and how they found the store.
+    columns:
+      id:             { type: INTEGER,   access: pseudonymize, description: Customer ID. Join key to orders.user_id and order_items.user_id. }
+      age:            { type: INTEGER,   access: quasi_identifier, description: Customer age in years. }
+      gender:         { type: STRING,    access: quasi_identifier, description: "M or F." }
+      city:           { type: STRING,    access: quasi_identifier, description: Customer city. }
+      state:          { type: STRING,    access: allow, description: Customer state or region. }
+      country:        { type: STRING,    access: allow, description: Customer country. }
+      traffic_source: { type: STRING,    access: allow, description: "Acquisition channel (Search, Organic, Facebook, Email, Display)." }
+      created_at:     { type: TIMESTAMP, access: quasi_identifier, description: When the customer signed up. }
+    blocked: [first_name, last_name, email, street_address, postal_code, latitude, longitude, user_geom]
+    belongs_via: { column: id, via: order_items.user_id }
+    describes_customers: true
+
+  orders:
+    description: One row per order.
+    columns:
+      order_id:     { type: INTEGER,   access: allow, description: Order ID. Join key to order_items.order_id. }
+      user_id:      { type: INTEGER,   access: pseudonymize, description: Customer who placed the order. Join key to users.id. }
+      status:       { type: STRING,    access: allow, description: "Processing, Shipped, Complete, Cancelled or Returned." }
+      gender:       { type: STRING,    access: quasi_identifier, description: Customer gender (copied from users). }
+      created_at:   { type: TIMESTAMP, access: allow, description: When the order was placed. }
+      returned_at:  { type: TIMESTAMP, access: allow, description: When the order was returned (null if not returned). }
+      shipped_at:   { type: TIMESTAMP, access: allow, description: When the order was shipped (null if not yet). }
+      delivered_at: { type: TIMESTAMP, access: allow, description: When the order was delivered (null if not yet). }
+      num_of_item:  { type: INTEGER,   access: allow, description: Number of items in the order. }
+    blocked: []
+    belongs_via: { column: order_id, via: order_items.order_id }
+
+  order_items:
+    description: One row per item sold. sale_price here is the revenue source of truth.
+    columns:
+      id:                { type: INTEGER,   access: allow, description: Order item ID. }
+      order_id:          { type: INTEGER,   access: allow, description: Join key to orders.order_id. }
+      user_id:           { type: INTEGER,   access: pseudonymize, description: Customer who bought the item. Join key to users.id. }
+      product_id:        { type: INTEGER,   access: allow, description: Join key to products.id. }
+      inventory_item_id: { type: INTEGER,   access: allow, description: Inventory item ID. }
+      status:            { type: STRING,    access: allow, description: "Item status (Processing, Shipped, Complete, Cancelled, Returned)." }
+      created_at:        { type: TIMESTAMP, access: allow, description: When the item was ordered. }
+      shipped_at:        { type: TIMESTAMP, access: allow, description: When the item was shipped. }
+      delivered_at:      { type: TIMESTAMP, access: allow, description: When the item was delivered. }
+      returned_at:       { type: TIMESTAMP, access: allow, description: When the item was returned. }
+      sale_price:        { type: FLOAT,     access: allow, description: Price the item was sold for (revenue). }
+    blocked: []
+    belongs_via: { column: product_id, via: products.id }
+
+  products:
+    description: Product catalog.
+    columns:
+      id:                     { type: INTEGER, access: allow, description: Product ID. Join key to order_items.product_id. }
+      name:                   { type: STRING,  access: allow, description: Product name. }
+      brand:                  { type: STRING,  access: allow, description: Brand. }
+      category:               { type: STRING,  access: allow, description: "Category (Jeans, Accessories, ...)." }
+      department:             { type: STRING,  access: allow, description: "Men or Women." }
+      cost:                   { type: FLOAT,   access: allow, description: Unit cost to the company (business-sensitive, used for margin). }
+      retail_price:           { type: FLOAT,   access: allow, description: List price. }
+      sku:                    { type: STRING,  access: allow, description: Stock keeping unit. }
+      distribution_center_id: { type: INTEGER, access: allow, description: Distribution center that ships the product. }
+    blocked: []
