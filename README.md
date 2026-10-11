@@ -4,7 +4,7 @@ A chat assistant that lets non-technical executives ask questions about sales, c
 
 It runs in the terminal, queries the public BigQuery dataset `bigquery-public-data.thelook_ecommerce`, and uses Google Gemini models through the [Strands Agents](https://strandsagents.com) framework. Privacy, data access, destructive actions and cost limits are enforced in code, not left to the model.
 
-The production design (cloud services, architecture diagram, data flow) is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The production design (cloud services, architecture diagram, data flow) is in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## What it can do
 
