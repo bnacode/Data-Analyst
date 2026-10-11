@@ -26,7 +26,7 @@ The production design (cloud services, architecture diagram, data flow) is in [d
 ### Install
 
 ```bash
-git clone <repo-url> analyst-agent
+git clone https://github.com/bnacode/Data-Analyst.git analyst-agent
 cd analyst-agent
 
 python -m venv .venv
