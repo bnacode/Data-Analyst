@@ -157,4 +157,4 @@ pytest
 - Reports live in local SQLite; production uses PostgreSQL and object storage.
 - Observability is a log file and `/metrics`; production adds tracing, dashboards and alerts.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the production design.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the production design.
